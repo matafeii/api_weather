@@ -10,7 +10,14 @@ const cities = {
   bydgoszcz: { name: 'Быдгощ', lat: 53.0085, lon: 18.0408 }
 };
 
-// Текущие координаты
+// Текущие координаты - объект для изменения
+export const location = {
+  lat: cities.krakow.lat,
+  lon: cities.krakow.lon,
+  name: cities.krakow.name
+};
+
+// Устаревшие переменные для совместимости - используем геттеры
 export let currentLat = cities.krakow.lat;
 export let currentLon = cities.krakow.lon;
 export let currentCityName = cities.krakow.name;
@@ -150,11 +157,9 @@ function displayHourlyForecast(hourlyData) {
   const hourlyList = document.getElementById('hourly-list');
   hourlyList.innerHTML = '';
   
-  // Получаем текущий час
   const now = new Date();
   const currentHour = now.getHours();
   
-  // Находим индекс текущего часа в массиве
   let startIndex = 0;
   for (let i = 0; i < hourlyData.time.length; i++) {
     const hourDate = new Date(hourlyData.time[i]);
@@ -164,7 +169,6 @@ function displayHourlyForecast(hourlyData) {
     }
   }
   
-  // Берем 5 часов начиная с текущего
   const times = hourlyData.time.slice(startIndex, startIndex + 5);
   const temps = hourlyData.temperature_2m.slice(startIndex, startIndex + 5);
   const codes = hourlyData.weather_code.slice(startIndex, startIndex + 5);
@@ -215,12 +219,10 @@ export async function fetchWeather(lat, lon, cityName) {
     setWeatherBackground(weatherCode);
     createWeatherEffects(weatherCode);
     
-    // Отображение hourly forecast
     if (data.hourly) {
       displayHourlyForecast(data.hourly);
     }
     
-    // GSAP анимация при смене погоды
     if (typeof gsap !== 'undefined') {
       gsap.fromTo('.temperature', 
         { scale: 1.2, opacity: 0 },
@@ -255,9 +257,16 @@ export function initWeather() {
     
     navigator.geolocation.getCurrentPosition(
       function(position) {
+        // Обновляем координаты
+        location.lat = position.coords.latitude;
+        location.lon = position.coords.longitude;
+        location.name = 'Ваше местоположение';
+        
+        // Обновляем устаревшие переменные
         currentLat = position.coords.latitude;
         currentLon = position.coords.longitude;
         currentCityName = 'Ваше местоположение';
+        
         fetchWeather(currentLat, currentLon, currentCityName);
         gpsBtn.classList.remove('active');
         

@@ -1,5 +1,5 @@
 // Карта (Leaflet)
-import { currentLat, currentLon, currentCityName, fetchWeather } from './weather.js';
+import { location, fetchWeather } from './weather.js';
 
 let map = null;
 let mapMarker = null;
@@ -8,7 +8,7 @@ let mapMarker = null;
 export function initMap() {
   if (map) return;
   
-  map = L.map('map').setView([currentLat, currentLon], 5);
+  map = L.map('map').setView([location.lat, location.lon], 5);
   
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
@@ -19,9 +19,10 @@ export function initMap() {
     const lat = e.latlng.lat;
     const lon = e.latlng.lng;
     
-    currentLat = lat;
-    currentLon = lon;
-    currentCityName = 'Выбранный город';
+    // Обновляем местоположение через объект
+    location.lat = lat;
+    location.lon = lon;
+    location.name = 'Выбранный город';
     
     // Обновляем маркер
     if (mapMarker) {
@@ -35,20 +36,23 @@ export function initMap() {
   });
   
   // Обработчик кнопки карты
-  document.getElementById('map-btn').addEventListener('click', function() {
-    const mapContainer = document.getElementById('map-container');
-    mapContainer.classList.toggle('active');
-    
-    if (mapContainer.classList.contains('active')) {
-      setTimeout(function() {
-        if (!map) {
-          initMap();
-        }
-        map.invalidateSize();
-        map.setView([currentLat, currentLon], 5);
-      }, 100);
-    }
-  });
+  const mapBtn = document.getElementById('map-btn');
+  if (mapBtn) {
+    mapBtn.addEventListener('click', function() {
+      const mapContainer = document.getElementById('map-container');
+      mapContainer.classList.toggle('active');
+      
+      if (mapContainer.classList.contains('active')) {
+        setTimeout(function() {
+          if (!map) {
+            initMap();
+          }
+          map.invalidateSize();
+          map.setView([location.lat, location.lon], 5);
+        }, 100);
+      }
+    });
+  }
 }
 
 // Обновление вида карты
