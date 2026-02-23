@@ -6,16 +6,43 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  transition: background 0.8s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Динамические фоны для разной погоды */
+body.weather-clear {
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+}
+
+body.weather-cloudy {
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+}
+
+body.weather-rain {
+  background: linear-gradient(135deg, #5c6bc0 0%, #3f51b5 100%);
+}
+
+body.weather-snow {
+  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+body.weather-thunder {
+  background: linear-gradient(135deg, #434343 0%, #1a1a1a 100%);
+}
+
+body.weather-fog {
+  background: linear-gradient(135deg, #9fa2b2 0%, #cfd9df 100%);
 }
 
 .weather-container {
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 40px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);

@@ -40,6 +40,33 @@ const weatherCodes = {
   99: 'Сильная гроза с градом'
 };
 
+// Функция установки фона в зависимости от погоды
+function setWeatherBackground(weatherCode) {
+  const body = document.body;
+  
+  // Удаляем все классы погоды
+  body.classList.remove('weather-clear', 'weather-cloudy', 'weather-rain', 'weather-snow', 'weather-thunder', 'weather-fog');
+  
+  // Определяем класс фона
+  if (weatherCode === 0 || weatherCode === 1) {
+    body.classList.add('weather-clear');
+  } else if (weatherCode === 2 || weatherCode === 3) {
+    body.classList.add('weather-cloudy');
+  } else if (weatherCode >= 45 && weatherCode <= 48) {
+    body.classList.add('weather-fog');
+  } else if (weatherCode >= 51 && weatherCode <= 55) {
+    body.classList.add('weather-rain');
+  } else if (weatherCode >= 61 && weatherCode <= 82) {
+    body.classList.add('weather-rain');
+  } else if (weatherCode >= 95 && weatherCode <= 99) {
+    body.classList.add('weather-thunder');
+  } else if (weatherCode >= 71 && weatherCode <= 75) {
+    body.classList.add('weather-snow');
+  } else {
+    body.classList.add('weather-cloudy');
+  }
+}
+
 // Функция получения погоды
 async function fetchWeather(lat, lon, cityName) {
   const descriptionEl = document.getElementById('description');
@@ -71,6 +98,9 @@ async function fetchWeather(lat, lon, cityName) {
     // Описание погоды
     const weatherCode = current.weather_code;
     descriptionEl.textContent = weatherCodes[weatherCode] || 'Неизвестно';
+    
+    // Установка фона в зависимости от погоды
+    setWeatherBackground(weatherCode);
     
     // Влажность
     humidityEl.textContent = current.relative_humidity_2m;
