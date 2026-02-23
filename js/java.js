@@ -15,6 +15,10 @@ let currentLat = cities.krakow.lat;
 let currentLon = cities.krakow.lon;
 let currentCityName = cities.krakow.name;
 
+// Переменная для карты
+let map = null;
+let mapMarker = null;
+
 // Коды погоды WMO -> описание
 const weatherCodes = {
   0: 'Ясно',
@@ -38,6 +42,31 @@ const weatherCodes = {
   95: 'Гроза',
   96: 'Гроза с градом',
   99: 'Сильная гроза с градом'
+};
+
+// Иконки погоды для hourly forecast
+const weatherIcons = {
+  0: '☀️',
+  1: '🌤️',
+  2: '⛅',
+  3: '☁️',
+  45: '🌫️',
+  48: '🌫️',
+  51: '🌧️',
+  53: '🌧️',
+  55: '🌧️',
+  61: '🌧️',
+  63: '🌧️',
+  65: '🌧️',
+  71: '❄️',
+  73: '❄️',
+  75: '❄️',
+  80: '⛈️',
+  81: '⛈️',
+  82: '⛈️',
+  95: '⚡',
+  96: '⚡',
+  99: '⚡'
 };
 
 // Mouse position for interaction
@@ -140,6 +169,30 @@ function setWeatherBackground(weatherCode) {
   }
 }
 
+// Функция отображения прогноза на 5 часов
+function displayHourlyForecast(hourlyData) {
+  const hourlyList = document.getElementById('hourly-list');
+  hourlyList.innerHTML = '';
+  
+  const times = hourlyData.time.slice(0, 5);
+  const temps = hourlyData.temperature_2m.slice(0, 5);
+  const codes = hourlyData.weather_code.slice(0, 5);
+  
+  for (let i = 0; i < times.length; i++) {
+    const date = new Date(times[i]);
+    const hours = date.getHours().toString().padStart(2, '0') + ':00';
+    
+    const item = document.createElement('div');
+    item.className = 'hourly-item';
+    item.innerHTML = `
+      <div class="hourly-time">${hours}</div>
+      <div class="hourly-icon">${weatherIcons[codes[i]] || '☁️'}</div>
+      <div class="hourly-temp">${Math.round(temps[i])}°</div>
+    `;
+    hourlyList.appendChild(item);
+  }
+}
+
 // Функция получения погоды
 async function fetchWeather(lat, lon, cityName) {
   const descriptionEl = document.getElementById('description');
@@ -151,7 +204,7 @@ async function fetchWeather(lat, lon, cityName) {
   descriptionEl.textContent = 'Загрузка...';
   
   try {
-    const API_URL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
+    const API_URL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&forecast_days=1`;
     
     const response = await fetch(API_URL);
     
@@ -170,6 +223,11 @@ async function fetchWeather(lat, lon, cityName) {
     
     setWeatherBackground(weatherCode);
     createWeatherEffects(weatherCode);
+    
+    // Отображение hourly forecast
+    if (data.hourly) {
+      displayHourlyForecast(data.hourly);
+    }
     
     // Обновление 3D эффектов
     if (typeof update3DWeather === 'function') {
@@ -196,6 +254,56 @@ async function fetchWeather(lat, lon, cityName) {
   }
 }
 
+// Функция инициализации карты
+function initMap() {
+  if (map) return;
+  
+  map = L.map('map').setView([currentLat, currentLon], 5);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Обработчик клика по карте
+  map.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+    
+    currentLat = lat;
+    currentLon = lon;
+    currentCityName = 'Выбранный город';
+    
+    // Обновляем маркер
+    if (mapMarker) {
+      mapMarker.setLatLng([lat, lon]);
+    } else {
+      mapMarker = L.marker([lat, lon]).addTo(map);
+    }
+    
+    // Сбрасываем выбор города
+    document.getElementById('city-select').value = '';
+    
+    // Получаем погоду для новых координат
+    fetchWeather(lat, lon, 'Выбранный город');
+  });
+}
+
+// Обработчик кнопки карты
+document.getElementById('map-btn').addEventListener('click', function() {
+  const mapContainer = document.getElementById('map-container');
+  mapContainer.classList.toggle('active');
+  
+  if (mapContainer.classList.contains('active')) {
+    setTimeout(function() {
+      if (!map) {
+        initMap();
+      }
+      map.invalidateSize();
+      map.setView([currentLat, currentLon], 5);
+    }, 100);
+  }
+});
+
 // Обработчик выбора города
 document.getElementById('city-select').addEventListener('change', function(e) {
   const cityKey = e.target.value;
@@ -204,6 +312,16 @@ document.getElementById('city-select').addEventListener('change', function(e) {
   currentLon = city.lon;
   currentCityName = city.name;
   fetchWeather(currentLat, currentLon, currentCityName);
+  
+  // Обновляем карту если она открыта
+  if (map) {
+    map.setView([currentLat, currentLon], 10);
+    if (mapMarker) {
+      mapMarker.setLatLng([currentLat, currentLon]);
+    } else {
+      mapMarker = L.marker([currentLat, currentLon]).addTo(map);
+    }
+  }
 });
 
 // Обработчик GPS
@@ -225,6 +343,16 @@ document.getElementById('gps-btn').addEventListener('click', function() {
       document.getElementById('city-select').value = '';
       fetchWeather(currentLat, currentLon, currentCityName);
       gpsBtn.classList.remove('active');
+      
+      // Обновляем карту если она открыта
+      if (map) {
+        map.setView([currentLat, currentLon], 10);
+        if (mapMarker) {
+          mapMarker.setLatLng([currentLat, currentLon]);
+        } else {
+          mapMarker = L.marker([currentLat, currentLon]).addTo(map);
+        }
+      }
     },
     function(error) {
       alert('Не удалось определить местоположение');
