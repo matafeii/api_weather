@@ -40,6 +40,12 @@ const weatherCodes = {
   99: 'Сильная гроза с градом'
 };
 
+// Mouse position for interaction
+let mouseX = 0;
+let mouseY = 0;
+let targetRotationX = 0;
+let targetRotationY = 0;
+
 // Функция создания анимированных эффектов погоды
 function createWeatherEffects(weatherCode) {
   const container = document.getElementById('weather-effects');
@@ -168,6 +174,14 @@ async function fetchWeather(lat, lon, cityName) {
     // Обновление 3D эффектов
     if (typeof update3DWeather === 'function') {
       update3DWeather(weatherCode);
+    }
+    
+    // GSAP анимация при смене погоды
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo('.temperature', 
+        { scale: 1.2, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }
+      );
     }
     
     humidityEl.textContent = current.relative_humidity_2m;
@@ -383,6 +397,13 @@ function animate3D() {
     const positions = particles3D.geometry.attributes.position.array;
     const velocities = particles3D.geometry.userData.velocities;
     
+    // Mouse interaction - rotate camera based on mouse position
+    targetRotationX = (mouseY * 0.5);
+    targetRotationY = (mouseX * 0.5);
+    
+    camera3D.rotation.x += 0.05 * (targetRotationX - camera3D.rotation.x);
+    camera3D.rotation.y += 0.05 * (targetRotationY - camera3D.rotation.y);
+    
     for (let i = 0; i < positions.length / 3; i++) {
       if (currentWeatherType === 'rain') {
         positions[i * 3 + 1] -= velocities[i];
@@ -427,10 +448,65 @@ function onWindowResize() {
   }
 }
 
-// Инициализация 3D погоды при загрузке
-if (document.getElementById('weather-canvas') && typeof THREE !== 'undefined') {
-  init3DWeather();
+// Mouse move event handler
+document.addEventListener('mousemove', function(event) {
+  mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
+// Scroll event handler
+let lastScrollY = 0;
+window.addEventListener('scroll', function() {
+  const scrollY = window.scrollY;
+  const scrollIndicator = document.getElementById('scroll-indicator');
+  
+  // Hide scroll indicator after scrolling
+  if (scrollY > 50) {
+    scrollIndicator.classList.add('hidden');
+  } else {
+    scrollIndicator.classList.remove('hidden');
+  }
+  
+  lastScrollY = scrollY;
+});
+
+// Scroll indicator click handler
+document.getElementById('scroll-indicator').addEventListener('click', function() {
+  window.scrollTo({
+    top: 100,
+    behavior: 'smooth'
+  });
+});
+
+// Initialize on page load
+function init() {
+  // Hide loader after everything is ready
+  setTimeout(function() {
+    const loader = document.getElementById('loader-3d');
+    if (loader) {
+      loader.classList.add('hidden');
+    }
+    
+    // GSAP animation for container
+    if (typeof gsap !== 'undefined') {
+      gsap.to('.weather-container', {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power3.out',
+        delay: 0.3
+      });
+    }
+    
+    // Initialize 3D weather
+    if (document.getElementById('weather-canvas') && typeof THREE !== 'undefined') {
+      init3DWeather();
+    }
+    
+    // Fetch initial weather
+    fetchWeather(currentLat, currentLon, currentCityName);
+  }, 1500);
 }
 
-// Загрузка при открытии страницы
-fetchWeather(currentLat, currentLon, currentCityName);
+// Start initialization
+init();

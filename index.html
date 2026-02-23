@@ -6,10 +6,17 @@
     <title>Погода в Кракове</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   </head>
   <body>
     <canvas id="weather-canvas"></canvas>
     <div class="weather-effects" id="weather-effects"></div>
+    <div class="loader-3d" id="loader-3d">
+      <div class="loader-sphere"></div>
+    </div>
+    <div class="scroll-indicator" id="scroll-indicator">
+      <span>↓</span>
+    </div>
     <div class="weather-container">
       <h1>Погода</h1>
 
