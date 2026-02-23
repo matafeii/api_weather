@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Погода в Кракове</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="weather-container">
+      <h1>Погода</h1>
+
+      <div class="controls">
+        <select id="city-select" class="city-select">
+          <option value="krakow">Краков</option>
+          <option value="warsaw">Варшава</option>
+          <option value="gdansk">Гданьск</option>
+          <option value="wroclaw">Вроцлав</option>
+          <option value="poznan">Познань</option>
+          <option value="lodz">Лодзь</option>
+          <option value="lublin">Люблин</option>
+          <option value="bydgoszcz">Быдгощ</option>
+        </select>
+        <button id="gps-btn" class="gps-btn" title="Определить местоположение">
+          📍
+        </button>
+      </div>
+
+      <div class="city-name" id="city-name">Краков</div>
+
+      <div class="weather-info">
+        <div class="temperature">
+          <span id="temp">--</span>
+          <span class="unit">°C</span>
+        </div>
+        <div class="description" id="description">Загрузка...</div>
+        <div class="details">
+          <div class="detail-item">
+            <span class="label">Влажность:</span>
+            <span id="humidity">--</span>
+            <span class="unit">%</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Ветер:</span>
+            <span id="wind">--</span>
+            <span class="unit">км/ч</span>
+          </div>
+        </div>
+      </div>
+      <button id="refresh-btn" class="refresh-btn">Обновить</button>
+    </div>
+    <script src="js/java.js"></script>
+  </body>
+</html>

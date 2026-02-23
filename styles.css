@@ -1,0 +1,168 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.weather-container {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.city-select {
+  padding: 10px 15px;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.city-select:hover {
+  border-color: #764ba2;
+}
+
+.gps-btn {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  background: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gps-btn:hover {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+.gps-btn.active {
+  background: #667eea;
+  border-color: #667eea;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.city-name {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.temperature {
+  font-size: 72px;
+  font-weight: bold;
+  color: #667eea;
+  margin: 10px 0;
+}
+
+.unit {
+  font-size: 24px;
+  color: #999;
+}
+
+.description {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 30px;
+  min-height: 30px;
+}
+
+.details {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 14px;
+  color: #999;
+}
+
+.detail-item span:nth-child(2) {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.refresh-btn:active {
+  transform: translateY(0);
+}
+
+.error {
+  color: #e74c3c;
+  padding: 20px;
+}
