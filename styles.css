@@ -680,8 +680,9 @@ body {
 .hourly-list {
   display: flex;
   gap: 10px;
-  overflow-x: auto;
+  overflow-x: hidden;
   padding-bottom: 10px;
+  justify-content: space-between;
 }
 
 .hourly-item {

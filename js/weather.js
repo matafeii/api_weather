@@ -59,8 +59,7 @@ export function createWeatherEffects(weatherCode) {
   if (weatherCode === 0 || weatherCode === 1) {
     const sunRays = document.createElement('div');
     sunRays.className = 'sun-rays';
-    sunRays.innerHTML = '<div class="sun"></div>' + 
-      '<div class="ray"></div>'.repeat(12);
+    sunRays.innerHTML = '<div class="sun"></div>' + '<div class="ray"></div>'.repeat(12);
     container.appendChild(sunRays);
     createClouds(container);
   } else if (weatherCode === 2 || weatherCode === 3) {
@@ -146,14 +145,29 @@ export function setWeatherBackground(weatherCode) {
   }
 }
 
-// Функция отображения прогноза на 5 часов
+// Функция отображения прогноза на 5 часов (начиная с текущего часа)
 function displayHourlyForecast(hourlyData) {
   const hourlyList = document.getElementById('hourly-list');
   hourlyList.innerHTML = '';
   
-  const times = hourlyData.time.slice(0, 5);
-  const temps = hourlyData.temperature_2m.slice(0, 5);
-  const codes = hourlyData.weather_code.slice(0, 5);
+  // Получаем текущий час
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  // Находим индекс текущего часа в массиве
+  let startIndex = 0;
+  for (let i = 0; i < hourlyData.time.length; i++) {
+    const hourDate = new Date(hourlyData.time[i]);
+    if (hourDate.getHours() === currentHour) {
+      startIndex = i;
+      break;
+    }
+  }
+  
+  // Берем 5 часов начиная с текущего
+  const times = hourlyData.time.slice(startIndex, startIndex + 5);
+  const temps = hourlyData.temperature_2m.slice(startIndex, startIndex + 5);
+  const codes = hourlyData.weather_code.slice(startIndex, startIndex + 5);
   
   for (let i = 0; i < times.length; i++) {
     const date = new Date(times[i]);
@@ -228,21 +242,6 @@ export async function fetchWeather(lat, lon, cityName) {
 
 // Инициализация погоды
 export function initWeather() {
-  // Обработчик выбора города
-  document.getElementById('city-select').addEventListener('change', function(e) {
-    const cityKey = e.target.value;
-    const city = cities[cityKey];
-    currentLat = city.lat;
-    currentLon = city.lon;
-    currentCityName = city.name;
-    fetchWeather(currentLat, currentLon, currentCityName);
-    
-    // Обновляем карту если она открыта
-    if (typeof updateMapView === 'function') {
-      updateMapView(currentLat, currentLon);
-    }
-  });
-
   // Обработчик GPS
   document.getElementById('gps-btn').addEventListener('click', function() {
     const gpsBtn = this;
@@ -259,7 +258,6 @@ export function initWeather() {
         currentLat = position.coords.latitude;
         currentLon = position.coords.longitude;
         currentCityName = 'Ваше местоположение';
-        document.getElementById('city-select').value = '';
         fetchWeather(currentLat, currentLon, currentCityName);
         gpsBtn.classList.remove('active');
         

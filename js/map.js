@@ -30,9 +30,6 @@ export function initMap() {
       mapMarker = L.marker([lat, lon]).addTo(map);
     }
     
-    // Сбрасываем выбор города
-    document.getElementById('city-select').value = '';
-    
     // Получаем погоду для новых координат
     fetchWeather(lat, lon, 'Выбранный город');
   });
