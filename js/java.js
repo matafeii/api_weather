@@ -40,6 +40,82 @@ const weatherCodes = {
   99: 'Сильная гроза с градом'
 };
 
+// Функция создания анимированных эффектов погоды
+function createWeatherEffects(weatherCode) {
+  const container = document.getElementById('weather-effects');
+  container.innerHTML = '';
+  
+  if (weatherCode === 0 || weatherCode === 1) {
+    // Ясно - солнце
+    const sunRays = document.createElement('div');
+    sunRays.className = 'sun-rays';
+    sunRays.innerHTML = '<div class="sun"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div><div class="ray"></div>';
+    container.appendChild(sunRays);
+    createClouds(container);
+  } else if (weatherCode === 2 || weatherCode === 3) {
+    // Облачно
+    createClouds(container);
+  } else if (weatherCode >= 45 && weatherCode <= 48) {
+    // Туман
+    for (let i = 1; i <= 3; i++) {
+      const fog = document.createElement('div');
+      fog.className = 'fog fog-' + i;
+      container.appendChild(fog);
+    }
+  } else if ((weatherCode >= 51 && weatherCode <= 55) || (weatherCode >= 61 && weatherCode <= 82)) {
+    // Дождь
+    createRain(container);
+    createClouds(container);
+  } else if (weatherCode >= 95 && weatherCode <= 99) {
+    // Гроза
+    const lightning = document.createElement('div');
+    lightning.className = 'lightning';
+    container.appendChild(lightning);
+    createRain(container);
+  } else if (weatherCode >= 71 && weatherCode <= 75) {
+    // Снег
+    createSnow(container);
+    createClouds(container);
+  } else {
+    createClouds(container);
+  }
+}
+
+function createClouds(container) {
+  for (let i = 1; i <= 3; i++) {
+    const cloud = document.createElement('div');
+    cloud.className = 'cloud cloud-' + i;
+    container.appendChild(cloud);
+  }
+}
+
+function createRain(container) {
+  for (let i = 0; i < 50; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'rain-drop';
+    drop.style.left = (Math.random() * 100) + '%';
+    drop.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+    drop.style.animationDelay = (Math.random() * 2) + 's';
+    drop.style.opacity = 0.3 + Math.random() * 0.7;
+    container.appendChild(drop);
+  }
+}
+
+function createSnow(container) {
+  for (let i = 0; i < 50; i++) {
+    const flake = document.createElement('div');
+    flake.className = 'snowflake';
+    flake.style.left = (Math.random() * 100) + '%';
+    flake.style.animationDuration = (3 + Math.random() * 4) + 's';
+    flake.style.animationDelay = (Math.random() * 5) + 's';
+    const size = 5 + Math.random() * 10;
+    flake.style.width = size + 'px';
+    flake.style.height = size + 'px';
+    flake.style.opacity = 0.5 + Math.random() * 0.5;
+    container.appendChild(flake);
+  }
+}
+
 // Функция установки фона в зависимости от погоды
 function setWeatherBackground(weatherCode) {
   const body = document.body;
@@ -101,6 +177,9 @@ async function fetchWeather(lat, lon, cityName) {
     
     // Установка фона в зависимости от погоды
     setWeatherBackground(weatherCode);
+    
+    // Создание анимированных эффектов
+    createWeatherEffects(weatherCode);
     
     // Влажность
     humidityEl.textContent = current.relative_humidity_2m;
